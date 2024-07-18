@@ -7,8 +7,7 @@ assert() {
     # 输入值 为参数2
     input="$2"
 
-    root_dir="$(pwd)"
-    build_dir=${root_dir}/build
+    build_dir=$(pwd)/build
     # 运行程序，传入期待值，将生成结果写入tmp.s汇编文件。
     # 如果运行不成功，则会执行exit退出。成功时会短路exit操作
     ./rvcc "$input" > ${build_dir}/tmp.s || exit
@@ -16,7 +15,7 @@ assert() {
     $RISCV/bin/riscv64-unknown-linux-gnu-gcc -static -o ${build_dir}/tmp ${build_dir}/tmp.s
 
     # 运行生成出来目标文件
-    ${root_dir}/build/tmp
+    ${build_dir}/tmp
     $RISCV/bin/qemu-riscv64 -L $RISCV/sysroot ${build_dir}/tmp
 
     # 获取程序返回值，存入 实际值
@@ -38,6 +37,9 @@ assert 42 42
 
 # [2] 支持+ -运算符
 assert 34 '12-34+56'
+
+# [3] 支持空格
+assert 41 ' 12 + 34 - 5 '
 
 # 如果运行正常未提前退出，程序将显示OK
 echo OK
